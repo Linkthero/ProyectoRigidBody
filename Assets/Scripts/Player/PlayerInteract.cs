@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using static UnityEditor.Progress;
 
@@ -56,8 +57,17 @@ public class PlayerInteract : MonoBehaviour
             if (itemInteractuable != null)
             {
                 itemInteractuable.Use();
-                string item = nearestGameObject.GetComponent<Item>().itemType.ToString();
-                GetComponent<Inventario>().GetItem(item);
+                try
+                {
+                    string item = nearestGameObject.GetComponent<Item>().itemType.ToString();
+                    if (item != null)
+                        GetComponent<Inventario>().GetItem(item);
+                } catch (Exception e)
+                {
+                    Debug.Log("el objeto no tiene la clase item");
+                }
+                
+                
             }
         }
     }
