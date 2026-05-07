@@ -17,7 +17,7 @@ public class Inventario : MonoBehaviour
                 destornillador = true;
                 break;
             case "KeyDespacho":
-                llaveGrande = true;
+                llavePequeña = true;
                 break;
             case "Tarjeta":
                 tarjeta = true;
@@ -26,7 +26,7 @@ public class Inventario : MonoBehaviour
                 mechero = true;
                 break;
             case "KeySalida":
-                llavePequeña = true;
+                llaveGrande = true;
                 break;
             case "Libros":
                 libros = true;

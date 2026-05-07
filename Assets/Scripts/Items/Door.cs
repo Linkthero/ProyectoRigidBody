@@ -3,6 +3,9 @@ using UnityEngine;
 public class Door : MonoBehaviour, Interactable
 {
     public bool abierta = false;
+    public bool bloqueada;
+    public GameObject candado;
+
 
     private Animator animator;
 
@@ -22,12 +25,24 @@ public class Door : MonoBehaviour, Interactable
         else
         {
             animator.SetTrigger("Open");
+            if(candado != null)
+            {
+                candado.SetActive(false); // Desactiva el candado si la puerta está bloqueada
+                //haz animacion de abrir candado
+            }
             abierta = true;
         }
     }
 
     public void Use()
     {
-        InteractuaPuerta();
+        if (!bloqueada)
+        {
+            InteractuaPuerta();
+        } else
+        {
+            GetComponent<Dialogo>().Use();
+        }
+        
     }
 }

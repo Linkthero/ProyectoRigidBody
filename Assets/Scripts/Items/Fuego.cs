@@ -15,13 +15,14 @@ public class Fuego : MonoBehaviour, Interactable
 
     public void Use()
     {
-        Collider[] hits = Physics.OverlapSphere(GroundCheck.position, GroundRadius); // Realiza una esfera de colisión para verificar si el jugador está tocando el suelo
+        Collider[] hits = Physics.OverlapSphere(GroundCheck.position, GroundRadius); // Realiza una esfera de colisión para verificar si el jugador está 
 
         foreach (Collider col in hits)
         {
             if (col.gameObject.tag == "Player")
             {
                 Inventario inv = col.gameObject.GetComponent<Inventario>();
+                Debug.Log(inv);
                 if (inv.libros && inv.mechero)
                 {
                     gameObject.GetComponent<Dialogo>().enabled = false; // Desactiva el componente de diálogo para evitar que se muestre el mensaje de que el jugador no tiene los libros o el mechero en su inventario
@@ -29,10 +30,12 @@ public class Fuego : MonoBehaviour, Interactable
                     FindAnyObjectByType<Movimiento>().incendio = true;
                 }
                 break;
-            }else
-            {
-                gameObject.GetComponent<Dialogo>().Use(); // Activa el componente de diálogo para mostrar el mensaje de que el jugador no tiene los libros o el mechero en su inventario
             }
+        }
+        if (gameObject.GetComponent<Dialogo>().enabled)
+        {
+            Debug.Log("Me llamo por aqui");
+            gameObject.GetComponent<Dialogo>().Use(); // Activa el componente de diálogo para mostrar el mensaje de que el jugador no tiene los libros o el mechero en su inventario
         }
     }
 }
