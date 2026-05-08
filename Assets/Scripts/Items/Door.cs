@@ -9,6 +9,8 @@ public class Door : MonoBehaviour, Interactable
 
     private Animator animator;
 
+    public AudioSource audioSource;
+
     private void Start()
     {
         animator = GetComponent<Animator>();
@@ -27,6 +29,8 @@ public class Door : MonoBehaviour, Interactable
             animator.SetTrigger("Open");
             if(candado != null)
             {
+                
+                audioSource.Play();
                 candado.SetActive(false); // Desactiva el candado si la puerta está bloqueada
                 //haz animacion de abrir candado
             }

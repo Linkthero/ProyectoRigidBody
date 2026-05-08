@@ -1,5 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class Fuego : MonoBehaviour, Interactable
 {
@@ -7,6 +8,7 @@ public class Fuego : MonoBehaviour, Interactable
     [Header("Ground check")]
     [SerializeField] private Transform GroundCheck;
     [SerializeField] private float GroundRadius = 0.25f;
+    public AudioSource audioSource;
 
     void Start()
     {
@@ -27,6 +29,8 @@ public class Fuego : MonoBehaviour, Interactable
                 {
                     gameObject.GetComponent<Dialogo>().enabled = false; // Desactiva el componente de diálogo para evitar que se muestre el mensaje de que el jugador no tiene los libros o el mechero en su inventario
                     efectoFuego.SetActive(true); // Activa el efecto de fuego si el jugador tiene los libros y el mechero en su inventario
+                    if (audioSource != null && !audioSource.isPlaying)
+                        audioSource.Play();
                     FindAnyObjectByType<Movimiento>().incendio = true;
                 }
                 break;

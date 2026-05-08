@@ -20,12 +20,12 @@ public class Profesora : MonoBehaviour
         destination = waypoint.position; // Establece el destino inicial al primer punto del camino
         cortocircuito = false;
         animator = GetComponent<Animator>(); // Obtiene el componente Animator para controlar las animaciones
+        cuerpo.transform.rotation = Quaternion.Euler(-90f, 90f, 0); // Asegura que el cuerpo del personaje siempre mire hacia adelante (180 grados en el eje Y)
     }
 
     // Update is called once per frame
     void Update()
     {
-        cuerpo.transform.rotation = Quaternion.Euler(-89.98f, 90f, 0); // Asegura que el cuerpo del personaje siempre mire hacia adelante (180 grados en el eje Y)
         if (cortocircuito)
         {
             cortocircuito = false;
@@ -36,7 +36,6 @@ public class Profesora : MonoBehaviour
         {
             animator.SetInteger("arms", 22);
             animator.SetInteger("legs", 5);
-            //GetComponent<NavMeshAgent>().transform.rotation = Quaternion.LookRotation(destination - transform.position); // Gira el personaje para que mire hacia el destino
         }
         if (llave != null)
         {

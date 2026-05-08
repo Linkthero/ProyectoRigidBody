@@ -6,10 +6,15 @@ public class Dialogo : MonoBehaviour, Interactable
 {
     public string textoDialogo;
     public PanelDialogo panelDialogo;
+    public AudioSource audioSource;
     public void Use()
     {
         panelDialogo.CambiarTexto(textoDialogo);
         panelDialogo.gameObject.SetActive(true);
+        if(audioSource != null && !audioSource.isPlaying)
+        {
+            audioSource.Play();
+        }
         StartCoroutine(espera());
     }
 

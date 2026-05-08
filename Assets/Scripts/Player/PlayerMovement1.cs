@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,6 +14,8 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private float runMultiplier = 2f;
     private bool isRunning = false;
+    [SerializeField] private AudioClip[] pasos;
+    public AudioSource audioSource;
 
     //[Header("Ground check")]
     //[SerializeField] private Transform GroundCheck;
@@ -40,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
     public void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();   // Almacena la entrada de movimiento del jugador (eje horizontal y vertical)
+        
     }
 
     private void FixedUpdate()
@@ -50,7 +54,20 @@ public class PlayerMovement : MonoBehaviour
         Vector3 velocity = direction * currentSpeed; // Calcula la velocidad del jugador en función de la dirección y la velocidad actual
         Vector3 newVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z); // Mantiene la velocidad vertical actual del jugador para permitir el salto y la gravedad
         rb.linearVelocity = newVelocity; // Aplica la nueva velocidad al Rigidbody del jugador
-
+        if (moveInput != Vector2.zero)
+        {  // Verifica si el jugador está intentando moverse (si la entrada de movimiento no es cero)
+            if (!audioSource.isPlaying)
+            {
+                if (isRunning){
+                    audioSource.pitch = 1.8f; // Aumenta el tono del sonido de pasos si el jugador está corriendo para reflejar la mayor velocidad de movimiento
+                } else
+                {
+                    audioSource.pitch = 1.3f;
+                }
+                    int n = UnityEngine.Random.Range(0, pasos.Length); // Selecciona un clip de sonido de pasos aleatorio del array de clips de sonido de pasos
+                audioSource.PlayOneShot(pasos[n]);
+            }
+        }
         //if (moveInput.x > 0 || moveInput.y > 0)
         //{
         //    if (!audioSourcePasos.isPlaying)

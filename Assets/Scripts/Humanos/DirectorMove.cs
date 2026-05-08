@@ -20,12 +20,12 @@ public class Movimiento : MonoBehaviour
         destination = waypoint.position; // Establece el destino inicial al primer punto del camino
         incendio = false;
         animator = GetComponent<Animator>(); // Obtiene el componente Animator para controlar las animaciones
+        cuerpo.transform.rotation = Quaternion.Euler(-90f, 90f, 0); // Asegura que el cuerpo del personaje siempre mire hacia adelante (180 grados en el eje Y)
     }
 
     // Update is called once per frame
     void Update()
     {
-        cuerpo.transform.rotation = Quaternion.Euler(-89.98f, 90f, 0); // Asegura que el cuerpo del personaje siempre mire hacia adelante (180 grados en el eje Y)
         if (incendio)
         {
             incendio = false;

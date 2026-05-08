@@ -8,6 +8,7 @@ public class PlayerInteract : MonoBehaviour
     public GameObject itemText;
 
     public GameObject nearestGameObject;
+    public AudioSource audioSource;
 
     [Header("Ground check")]
     [SerializeField] private Transform GroundCheck;
@@ -61,7 +62,11 @@ public class PlayerInteract : MonoBehaviour
                 {
                     string item = nearestGameObject.GetComponent<Item>().itemType.ToString();
                     if (item != null)
+                    {
                         GetComponent<Inventario>().GetItem(item);
+                        if(audioSource != null && !audioSource.isPlaying)
+                            audioSource.Play();
+                    }
                 } catch (Exception e)
                 {
                     Debug.Log("el objeto no tiene la clase item");
