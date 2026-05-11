@@ -1,77 +1,103 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerLook : MonoBehaviour
 {
-    [Header("Sensibilidad de la camara")]
-    [SerializeField] public float mousesensibility = 0.15f;
+    [Header("Referencias de cámara")]
+    public Transform cameraTransform; // Referencia al transform de la cámara
 
-    [Header("Pitch clamp (angulo de inclinacion)")]
-    [SerializeField] public float minPitch = -60f; // Limita el ángulo de inclinación vertical para evitar que la cámara gire completamente hacia arriba o hacia abajo
-    [SerializeField] public float maxPitch = 60f; // Limita el ángulo de inclinación vertical para evitar que la cámara gire completamente hacia arriba o hacia abajo
+    [Header("Configuración de cámara")]
+    public float sensitivity = 60f; // Sensibilidad del mouse para la cámara
+    public float minPitch = -30f; // Ángulo mínimo de pitch
+    public float maxPitch = 30f; // Ángulo máximo de pitch
 
-    private Vector2 lookInput;
-    private float yaw; // Almacena la rotación horizontal del jugador (eje Y)
-    private float pitch; // Almacena la rotación vertical de la cámara (eje X)
+    private Vector2 lookInput; // Entrada de mirada del mouse
+    private float cameraPitch; // Ángulo de pitch de la cámara
+
+    [SerializeField] private PlayerInput playerInput; // Referencia al componente PlayerInput
+    [SerializeField] private float delaySeconds = 2f; // Tiempo de retraso antes de activar la cámara
+
+    private Renderer[] renderers; // Array de renderizadores del objeto
 
 
-    private Transform cameraTransform;
-    private Camera currentCamera;
-    private bool canMove = true;
+    private void Awake()
+    {
+        if (cameraTransform == null && Camera.main != null) // Asignar la cámara principal si no se ha asignado ninguna
+            cameraTransform = Camera.main.transform;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+        if (playerInput == null)
+        {
+            playerInput = GetComponent<PlayerInput>(); // Obtener el componente PlayerInput si no se ha asignado
+        }
+
+        renderers = GetComponentsInChildren<Renderer>(); // Obtener todos los renderizadores hijos
+
+        Ocultar(); // Ocultar el objeto al inicio
+    }
+
+    private void Ocultar()
+    {
+        foreach (var r in renderers) // Desactivar la visibilidad de cada renderer
+        {
+            r.enabled = false;
+        }
+    }
     void Start()
     {
-        UpdateActiveCamera();
-        Cursor.lockState = CursorLockMode.Locked; // Bloquea el cursor para que no se mueva fuera de la ventana del juego
-        Cursor.visible = false; // Oculta el cursor para una experiencia de juego más inmersiva
+        float yaw = transform.eulerAngles.y; // Guardamos el valor actual de yaw (rotación en Y)
+        transform.rotation = Quaternion.Euler(0, yaw, 0); // Reseteamos la rotación en X y Z, manteniendo Y
+        cameraPitch = 0f; // Reseteamos el pitch de la cámara
+        lookInput = Vector2.zero; // Reseteamos la entrada de mirada
+        if (cameraTransform != null) // Reseteamos la rotación local de la cámara
+            cameraTransform.localRotation = Quaternion.identity;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        StartCoroutine("StartInput"); // Iniciar la corrutina para activar la entrada del jugador después de un retraso
     }
 
-    // Update is called once per frame
-    void Update()
+    IEnumerator StartInput()
     {
-        if (!canMove)
-            return; // Si el jugador no puede moverse, no se ejecuta el código de rotación
-        if (cameraTransform == null)
-            return; // Si no se ha asignado una cámara, no se ejecuta el código de rotación
-        //rotacion horizontal del jugador
-        float yaw = lookInput.x * mousesensibility; // Calcula la rotación horizontal del jugador en función de la entrada del mouse y la sensibilidad
-        transform.Rotate(0, yaw, 0, Space.Self); // Aplica la rotación horizontal al jugador en su propio espacio local
+        yield return new WaitForSeconds(delaySeconds); // Esperar el tiempo especificado
 
-        //rotacion camara
-        pitch -= lookInput.y * mousesensibility; // Calcula la rotación vertical de la cámara en función de la entrada del mouse y la sensibilidad
-        pitch = Mathf.Clamp(yaw, minPitch, maxPitch); // Limita la rotación vertical de la cámara para evitar que gire completamente hacia arriba o hacia abajo
-        cameraTransform.localRotation = Quaternion.Euler(pitch, 0, 0); // Aplica la rotación vertical a la cámara en su propio espacio local
+        Mostrar(); // Mostrar el objeto
+
+        if (playerInput != null) // Verificar si playerInput no es nulo
+            playerInput.ActivateInput(); // Activar la entrada del jugador
     }
 
-    public void SetCanMove(bool value)
+    private void Mostrar()
     {
-        canMove = value; // Permite habilitar o deshabilitar el movimiento del jugador, lo que afecta la capacidad de rotar la cámara
-    }
-
-    private void UpdateActiveCamera()
-    {
-        if (Camera.main != currentCamera)
+        foreach (var r in renderers) // Activar la visibilidad de cada renderer
         {
-            currentCamera = Camera.main; // Actualiza la referencia a la cámara principal del juego
-            if (currentCamera != null)
-            {
-                cameraTransform = currentCamera.transform; // Actualiza la referencia al transform de la cámara para aplicar las rotaciones correctamente
-                pitch = cameraTransform.localEulerAngles.x; // Establece el ángulo máximo de inclinación en función de la rotación inicial de la cámara para mantener la orientación correcta
-                if (pitch > 180f) pitch -= 360f; // Ajusta el ángulo máximo de inclinación si es mayor a 180 grados para evitar problemas de rotación y mantener la orientación correcta de la cámara
-            }
+            r.enabled = true;
         }
     }
 
-    public void OnLook(InputValue value)
+    private void OnLook(InputValue value)
     {
-        lookInput = value.Get<Vector2>(); // Almacena la entrada de movimiento del mouse para usarla en la rotación del jugador y la cámara
-                                          //Debug.Log("onLook");
+        lookInput = value.Get<Vector2>();
+    }
+    void Update()
+    {
+        if (cameraTransform == null) // Verificar si la referencia de la cámara es nula
+            return;
+        HandleLook(); // Manejar la entrada de mirada del mouse
     }
 
-    private void OnEnable()
+    private void HandleLook()
     {
-        lookInput = Vector2.zero; // Reinicia la entrada de movimiento del mouse al habilitar el script para evitar movimientos no deseados al activar el jugador o la cámara
+        float mouseX = lookInput.x * sensitivity * Time.deltaTime; // Movimiento horizontal del ratón
+        float mouseY = lookInput.y * sensitivity * Time.deltaTime; // Movimiento vertical del ratón
+
+        transform.Rotate(0f, mouseX, 0f); // Rotamos el jugador en Y (yaw)
+
+        cameraPitch -= mouseY; // Ajustamos el pitch de la cámara
+
+        cameraPitch = Mathf.Clamp(cameraPitch, minPitch, maxPitch); // Limitamos el pitch
+
+        cameraTransform.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f); // Aplicamos la rotación a la cámara
     }
 
 }

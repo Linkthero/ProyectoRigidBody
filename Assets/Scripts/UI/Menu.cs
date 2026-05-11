@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Menu : MonoBehaviour
 {
@@ -13,6 +14,12 @@ public class Menu : MonoBehaviour
         {
             animator = panelFadeOut.GetComponent<Animator>();
             panelFadeOut.SetActive(false);
+        }
+
+        if(SceneManager.GetActiveScene().name == "Menu")
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
     }
